@@ -6,11 +6,14 @@ import email.message
 from pprint import pprint
 import mailparser
 
+
 imap_server = "imap.gmail.com"
 smtp_server = "smtp.gmail.com"
-addr = "jamescouldron@gmail.com"
-pwd = "95170305"
-readonly_state = True
+addr = "mail@caringride.com"
+pwd = "tuzsev-4hesku-sonwUd"
+# addr = "jamescouldron@gmail.com"
+# pwd = "95170305"
+readonly_state = False
 
 def fetch_unread():
 
@@ -21,10 +24,10 @@ def fetch_unread():
   
   # Fetch folders
   for fol in imapobj.list_folders():
+    if ("[Gmail]" not in fol[2]):
 
-    if fol[2] == 'INBOX':
       # Select folder
-      imapobj.select_folder('INBOX', readonly=readonly_state)
+      imapobj.select_folder(f"{fol[2]}", readonly=readonly_state)
       unseen_uids = imapobj.search(["UNSEEN"])
 
       # Fetch messages
@@ -56,9 +59,10 @@ def fetch_unread():
             
       except Exception as e:
         print(e)
-      finally:
-        imapobj.logout()
-
+      # finally:
+        # imapobj.logout()
+      imapobj.close_folder()
+  imapobj.logout()
 
   return unseen_msgs
   # return None

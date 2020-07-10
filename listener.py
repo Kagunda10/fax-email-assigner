@@ -11,23 +11,19 @@ from main import fetch_unread, reply
 from flask import Flask, request, jsonify, make_response
 from pprint import pprint
 import json
-from utils import AfterThisResponse
+from utils import AfterThisResponse, get_member_block
 
-BOT_TOKEN = "xoxb-535944217620-1223630838033-UAKWKPtfNzKjv1VGuYYMFOOr"
-USER_TOKEN = "xoxp-535944217620-535998288195-1196342482263-19d91c224d99ce3ea3e3a7d0cd45098c"
+BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
+USER_TOKEN = "xoxp-899759167666-914750686518-1234435004515-13364650811f9606492b0c2e4ab61231"
 bot = WebClient(token=BOT_TOKEN)
 user = WebClient(token=USER_TOKEN)
 
+fax_members_block = get_member_block("fax")
+email_members_block = get_member_block("email")
+
 app = Flask(__name__)
 AfterThisResponse(app)
-
-def get_user_id(username):
-    members = bot.users_list()["members"]
-    if members:
-        for member in members:
-            if member["name"] == username:
-                return member["id"]
-
+    
 @app.route("/message_actions", methods=["POST"])
 def interactivity():
 
@@ -44,7 +40,7 @@ def interactivity():
         # Check to see what the user's selection was and update the message accordingly
         selection = form_json["actions"][0]["value"]
 
-        if selection == "assign_email":
+        if selection == "assign_email":          
             # Open dialog
             open_dialog = bot.dialog_open(
                 trigger_id=trigger_id,
@@ -59,16 +55,7 @@ def interactivity():
                             "type": "select",
                             "name": "email_assignee",
                             "placeholder": "Select a user",
-                            "options": [
-                                {
-                                    "label": "James C",
-                                    "value": get_user_id("jamescouldron")
-                                },
-                                {
-                                    "label": "Felicity Smith",
-                                    "value": "feli_userid"
-                                }
-                            ]
+                            "options": email_members_block
                         }
                     ]
                 }
@@ -88,16 +75,7 @@ def interactivity():
                             "type": "select",
                             "name": "fax_assignee",
                             "placeholder": "Select a user",
-                            "options": [
-                                {
-                                    "label": "James C",
-                                    "value": get_user_id("jamescouldron")
-                                },
-                                {
-                                    "label": "Felicity Smith",
-                                    "value": "feli_userid"
-                                }
-                            ]
+                            "options": fax_members_block
                         }
                     ]
                 }
@@ -225,68 +203,69 @@ def interactivity():
                         to=submission_json["to"],
                         subject=submission_json["subject"],
                         content=body)
-      
+    
     return make_response("", 200)
 
 @app.route("/events", methods=["POST"])
 def events_handler():
     payload = request.json
     
-    @app.after_this_response
-    def do_after():
-        try:
-            if payload["event"]["type"] == "message" and payload["event"]["user"] != "U016KJJQN0Z":
-                # Get the file link and message ts
-                url = payload["event"]["files"][0]["url_private"]
-                ts = payload["event"]["ts"]
-                channel = payload["event"]["channel"]
-                text = payload["event"]["text"]
+    # @app.after_this_response
+    # def do_after():
+    #     try:
+    #         if payload["event"]["type"] == "message" and payload["event"]["user"] != "U016KJJQN0Z":
+    #             # Get the file link and message ts
+    #             url = payload["event"]["files"][0]["url_private"]
+    #             ts = payload["event"]["ts"]
+    #             channel = payload["event"]["channel"]
+    #             text = payload["event"]["text"]
 
-                # Delete the original message
-                user.chat_delete(
-                    channel= channel,
-                    ts=ts
-                )
+    #             # Delete the original message
+    #             user.chat_delete(
+    #                 channel= channel,
+    #                 ts=ts
+    #             )
 
-                # Post the message with the fax and added blocks
-                bot.chat_postMessage(
-                    channel=channel,
-                    blocks = [
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": "*You have a new fax:fax:*"
-                            }
-                        },
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": f"*Details*: {text}\n\n *Fax:* <{url}|link>"
-                            }
-                        },
-                        {
-                            "type": "actions",
-                            "elements": [
-                                {
-                                    "type": "button",
-                                    "text": {
-                                        "type": "plain_text",
-                                        "emoji": True,
-                                        "text": ":bust_in_silhouette:Assign"
-                                    },
-                                    "style": "primary",
-                                    "value": "assign_fax"
-                                }
-                            ]
-                        }
-                    ]
-                )
-        except KeyError:
-            print("Invalid event")
-    return make_response("", 200)
+    #             # Post the message with the fax and added blocks
+    #             bot.chat_postMessage(
+    #                 channel=channel,
+    #                 blocks = [
+    #                     {
+    #                         "type": "section",
+    #                         "text": {
+    #                             "type": "mrkdwn",
+    #                             "text": "*You have a new fax:fax:*"
+    #                         }
+    #                     },
+    #                     {
+    #                         "type": "section",
+    #                         "text": {
+    #                             "type": "mrkdwn",
+    #                             "text": f"*Details*: {text}\n\n *Fax:* <{url}|link>"
+    #                         }
+    #                     },
+    #                     {
+    #                         "type": "actions",
+    #                         "elements": [
+    #                             {
+    #                                 "type": "button",
+    #                                 "text": {
+    #                                     "type": "plain_text",
+    #                                     "emoji": True,
+    #                                     "text": ":bust_in_silhouette:Assign"
+    #                                 },
+    #                                 "style": "primary",
+    #                                 "value": "assign_fax"
+    #                             }
+    #                         ]
+    #                     }
+    #                 ]
+    #             )
+    #     except KeyError:
+    #         print("Invalid event")
+    # return make_response("", 200)
 
+    return payload["challenge"]
 
 def post_unread():
     unread_messages = fetch_unread()

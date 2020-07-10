@@ -165,8 +165,6 @@ def interactivity():
                 )["channel"]["id"]
 
                 # Move the message to the assigned users im
-                # Remove assign button
-                del submission_json[2]
 
                 res = bot.chat_postMessage(
                     channel=im_id,
@@ -210,62 +208,62 @@ def interactivity():
 def events_handler():
     payload = request.json
     
-    @app.after_this_response
-    def do_after():
-        try:
-            if payload["event"]["type"] == "message" and payload["event"]["user"] != "U016KJJQN0Z":
-                # Get the file link and message ts
-                url = payload["event"]["files"][0]["url_private"]
-                ts = payload["event"]["ts"]
-                channel = payload["event"]["channel"]
-                text = payload["event"]["text"]
+    # @app.after_this_response
+    # def do_after():
+    #     try:
+    #         if payload["event"]["type"] == "message" and payload["event"]["user"] != "U016KJJQN0Z":
+    #             # Get the file link and message ts
+    #             url = payload["event"]["files"][0]["url_private"]
+    #             ts = payload["event"]["ts"]
+    #             channel = payload["event"]["channel"]
+    #             text = payload["event"]["text"]
 
-                # Delete the original message
-                user.chat_delete(
-                    channel= channel,
-                    ts=ts
-                )
+    #             # Delete the original message
+    #             user.chat_delete(
+    #                 channel= channel,
+    #                 ts=ts
+    #             )
 
-                # Post the message with the fax and added blocks
-                bot.chat_postMessage(
-                    channel=channel,
-                    blocks = [
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": "*You have a new fax:fax:*"
-                            }
-                        },
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": f"*Details*: {text}\n\n *Fax:* <{url}|link>"
-                            }
-                        },
-                        {
-                            "type": "actions",
-                            "elements": [
-                                {
-                                    "type": "button",
-                                    "text": {
-                                        "type": "plain_text",
-                                        "emoji": True,
-                                        "text": ":bust_in_silhouette:Assign"
-                                    },
-                                    "style": "primary",
-                                    "value": "assign_fax"
-                                }
-                            ]
-                        }
-                    ]
-                )
-        except KeyError:
-            print("Invalid event")
-    return make_response("", 200)
+    #             # Post the message with the fax and added blocks
+    #             bot.chat_postMessage(
+    #                 channel=channel,
+    #                 blocks = [
+    #                     {
+    #                         "type": "section",
+    #                         "text": {
+    #                             "type": "mrkdwn",
+    #                             "text": "*You have a new fax:fax:*"
+    #                         }
+    #                     },
+    #                     {
+    #                         "type": "section",
+    #                         "text": {
+    #                             "type": "mrkdwn",
+    #                             "text": f"*Details*: {text}\n\n *Fax:* <{url}|link>"
+    #                         }
+    #                     },
+    #                     {
+    #                         "type": "actions",
+    #                         "elements": [
+    #                             {
+    #                                 "type": "button",
+    #                                 "text": {
+    #                                     "type": "plain_text",
+    #                                     "emoji": True,
+    #                                     "text": ":bust_in_silhouette:Assign"
+    #                                 },
+    #                                 "style": "primary",
+    #                                 "value": "assign_fax"
+    #                             }
+    #                         ]
+    #                     }
+    #                 ]
+    #             )
+    #     except KeyError:
+    #         print("Invalid event")
+    # return make_response("", 200)
 
-    # return payload["challenge"]
+    return payload["challenge"]
 
 def post_unread():
     unread_messages = fetch_unread()

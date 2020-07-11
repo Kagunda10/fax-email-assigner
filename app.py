@@ -231,7 +231,7 @@ def events_handler():
     @app.after_this_response
     def do_after():
         try:
-            if payload["event"]["type"] == "message" and payload["event"]["user"] != "U016KJJQN0Z":
+            if payload["event"]["type"] == "message" and payload["event"]["user"] != "U016KJJQN0Y":
                 # Get the file link and message ts
                 url = payload["event"]["files"][0]["url_private"]
                 ts = payload["event"]["ts"]

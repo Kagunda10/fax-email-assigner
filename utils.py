@@ -10,7 +10,7 @@ bot = WebClient(token=BOT_TOKEN)
 
 # Fax members
 # fax_members = ["Amberley Wilson", "Candi Smith", "Stacey", "Jason"]
-fax_members= ["James C"] 
+fax_members= ["James C", "caleb njiiri"] 
 class AfterThisResponse:
     def __init__(self, app=None):
         self.callbacks = []
@@ -57,8 +57,6 @@ def get_user_id(username):
         for member in members:
             if member["profile"]["display_name"] == username:
                 return member["id"]
-
-
 
 def get_member_block(name):    
     member_block = []

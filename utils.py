@@ -7,7 +7,8 @@ bot = WebClient(token=BOT_TOKEN)
 
 
 # Fax members
-fax_members = ["Amberley Wilson", "Candi Smith", "Stacey", "Jason"]
+# fax_members = ["Amberley Wilson", "Candi Smith", "Stacey", "Jason"]
+fax_members= ["James C"] 
 class AfterThisResponse:
     def __init__(self, app=None):
         self.callbacks = []

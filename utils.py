@@ -2,7 +2,9 @@ import traceback
 from werkzeug.wsgi import ClosingIterator
 from slack import WebClient
 
-BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
+# BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
+BOT_TOKEN = "xoxb-535944217620-1223630838033-UAKWKPtfNzKjv1VGuYYMFOOr"
+
 bot = WebClient(token=BOT_TOKEN)
 
 

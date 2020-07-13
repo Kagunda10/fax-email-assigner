@@ -61,7 +61,7 @@ def interactivity():
                     "state": json.dumps(form_json["message"]["blocks"]),
                     "elements": [
                         {
-                            "label": "Username",
+                            "label": "Member's Name",
                             "type": "select",
                             "name": "email_assignee",
                             "placeholder": "Select a user",

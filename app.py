@@ -114,14 +114,31 @@ def interactivity():
                 }
             )
         elif selection == "completed":
+            pprint(form_json)
             # Change the assignment footer to completed
             message_block = form_json["message"]["blocks"]
-            pprint(message_block)
             completed_by = bot.users_info(
                 user=user_id
             )["user"]["name"]
-            message_block[4]["elements"].clear()
-            message_block[4]["elements"] = [{"text": f":eyes: Completed by @{completed_by}", "type": "mrkdwn", "verbatim": False}]
+
+            try:
+                if message_block[4]:
+                    message_block[4]["elements"].clear()
+                    message_block[4]["elements"] = [{"text": f":eyes: Completed by @{completed_by}", "type": "mrkdwn", "verbatim": False}]
+            except IndexError:
+                message_block +=  [{
+                    "type": "divider"
+                    },
+                    {
+                        "type": "context",
+                        "elements": [
+                            {
+                                "type": "mrkdwn",
+                                "text": f":eyes: Completed by @{completed_by}"
+                            }
+                        ]
+                    }]
+            
             del message_block[2]
 
             # Delete the original message in the DM
@@ -129,7 +146,7 @@ def interactivity():
                 channel= form_json["channel"]["id"],
                 ts= form_json["message"]["ts"]
             )
-
+            pprint(message_block)
             #Move to the archive channel
             bot.chat_postMessage(
                 channel= archive_channel,
@@ -316,7 +333,6 @@ def events_handler():
     def do_after():
         try:
             if payload["event"]["type"] == "message" and payload["event"]["user"] != "U016KJJQN0Y":
-                # pprint(payload)
                 # Get the file link and message ts
                 url = payload["event"]["files"][0]["url_private"]
                 ts = payload["event"]["ts"]
@@ -359,6 +375,16 @@ def events_handler():
                                     },
                                     "style": "primary",
                                     "value": "assign_fax"
+                                },                    
+                                {
+                                    "type": "button",
+                                    "text": {
+                                        "type": "plain_text",
+                                        "emoji": True,
+                                        "text": ":white_check_mark:Completed"
+                                    },
+                                    "style": "primary",
+                                    "value": "completed"
                                 }
                             ]
                         }

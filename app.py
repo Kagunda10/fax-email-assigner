@@ -20,6 +20,7 @@ BOT_TOKEN = config.get("SLACK", "BOT_TOKEN")
 USER_TOKEN = config.get("SLACK", "USER_TOKEN")
 archive_channel = "#" + config.get("SLACK", "archive")
 email_channel = "#test-emails"
+# email_channel = "#faxtoslack"
 # BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
 # BOT_TOKEN = "xoxb-535944217620-1223630838033-UAKWKPtfNzKjv1VGuYYMFOOr"
 # USER_TOKEN = "xoxp-899759167666-914750686518-1234435004515-13364650811f9606492b0c2e4ab61231"
@@ -156,7 +157,6 @@ def interactivity():
         elif selection == "email_completed":
             # Change the assignment footer to completed
             message_block = form_json["message"]["blocks"]
-            pprint(message_block)
             completed_by = bot.users_info(
                 user=user_id
             )["user"]["name"]

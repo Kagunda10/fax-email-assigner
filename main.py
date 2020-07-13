@@ -5,6 +5,7 @@ import smtplib
 import email.message
 from pprint import pprint
 import mailparser
+import html2markdown
 
 
 imap_server = "imap.gmail.com"
@@ -13,7 +14,7 @@ addr = "mail@caringride.com"
 pwd = "tuzsev-4hesku-sonwUd"
 # addr = "jamescouldron@gmail.com"
 # pwd = "95170305"
-readonly_state = False
+readonly_state = True
 
 def fetch_unread():
 
@@ -50,8 +51,9 @@ def fetch_unread():
               msg["body"] = body
               
             else:
-              msg["body"] = message.html_part.get_payload().decode(message.html_part.charset)
-
+              raw_body = message.html_part.get_payload().decode(message.html_part.charset)
+              parsed_body = html2markdown.convert(raw_body)
+              msg["body"] = parsed_body
             unseen_msgs.append(msg)
             # pprint(msg)
               # Logout

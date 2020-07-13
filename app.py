@@ -8,13 +8,21 @@ TODO
 from slack import WebClient
 from main import fetch_unread, reply
 from flask import Flask, request, jsonify, make_response
+import configparser
 from pprint import pprint
 import json
 from utils import AfterThisResponse, get_member_block
 
-BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
+
+################### -CONFIGURATION- ##########################
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+BOT_TOKEN = config.get("SLACK", "BOT_TOKEN")
+USER_TOKEN = config.get("SLACK", "USER_TOKEN")
+# BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
 # BOT_TOKEN = "xoxb-535944217620-1223630838033-UAKWKPtfNzKjv1VGuYYMFOOr"
-USER_TOKEN = "xoxp-899759167666-914750686518-1234435004515-13364650811f9606492b0c2e4ab61231"
+# USER_TOKEN = "xoxp-899759167666-914750686518-1234435004515-13364650811f9606492b0c2e4ab61231"
 # USER_TOKEN = "xoxp-535944217620-535998288195-1196342482263-19d91c224d99ce3ea3e3a7d0cd45098c"
 bot = WebClient(token=BOT_TOKEN)
 user = WebClient(token=USER_TOKEN)

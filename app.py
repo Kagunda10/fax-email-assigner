@@ -2,10 +2,7 @@
 TODO
 - Fetch the list of usernames from google sheets 
 -  Add the assigned user and the fax number to a google sheet
-- Move the assigned emails and faxes to the archive channel
 - Remove all hardcoded variables and implement a config file
-= Allow moving of the messages from one dm to another
-- Add a completed button
 '''
 
 from slack import WebClient
@@ -24,6 +21,8 @@ user = WebClient(token=USER_TOKEN)
 
 fax_members_block = get_member_block("fax")
 email_members_block = get_member_block("email")
+
+archive_channel = "#random"
 
 app = Flask(__name__)
 AfterThisResponse(app)
@@ -108,10 +107,29 @@ def interactivity():
                 }
             )
         elif selection == "completed":
-            # Change the assignment footer to completed and Move to the archive channel
-            pprint(form_json)
+            # Change the assignment footer to completed
+            message_block = form_json["message"]["blocks"]
+            pprint(message_block)
+            completed_by = bot.users_info(
+                user=user_id
+            )["user"]["name"]
+            message_block[4]["elements"].clear()
+            message_block[4]["elements"] = [{"text": f":eyes: Completed by @{completed_by}", "type": "mrkdwn", "verbatim": False}]
+            del message_block[2]
 
             # Delete the original message in the DM
+            bot.chat_delete(
+                channel= form_json["channel"]["id"],
+                ts= form_json["message"]["ts"]
+            )
+
+            #Move to the archive channel
+            bot.chat_postMessage(
+                channel= archive_channel,
+                text = "",
+                blocks=message_block
+            )
+
 
     # Handle the dialog submissions        
     elif form_json["type"] == "dialog_submission":
@@ -124,11 +142,12 @@ def interactivity():
             assignee_username = bot.users_info(
                 user=assignee_id
             )["user"]["name"]
-            submission_json = json.loads(form_json["state"])
+            
 
             
             @app.after_this_response
             def do_after():
+                submission_json = json.loads(form_json["state"])
                 # Open conversation with the user
                 im_id = bot.conversations_open(
                     users = assignee_id
@@ -136,11 +155,41 @@ def interactivity():
 
                 # Move the message to the assigned users im
                 # Remove assign button
-                del submission_json[2]["elements"][0]
-                res = bot.chat_postMessage(
-                    channel=im_id,
-                    text="",
-                    blocks=submission_json + [{
+                submission_json[2]["elements"].clear()
+                submission_json[2]["elements"] = [
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "emoji": True,
+                            "text": ":bust_in_silhouette:Assign"
+                        },
+                        "style": "primary",
+                        "value": "assign_email"
+                    },                    
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "emoji": True,
+                            "text": ":done:Completed"
+                        },
+                        "style": "primary",
+                        "value": "completed"
+                    },
+                ]
+
+                # Move the message to the assigned users im
+                if len(submission_json) == 5:
+                    submission_json[4]["elements"].clear()
+                    submission_json[4]["elements"] = [
+                            {
+                                "type": "mrkdwn",
+                                "text": f"👀 Assigned to: @{assignee_username}"
+                            },
+                    ]
+                else:
+                    submission_json += [{
                     "type": "divider"
                     },
                     {
@@ -152,6 +201,10 @@ def interactivity():
                             }
                         ]
                     }]
+                res = bot.chat_postMessage(
+                    channel=im_id,
+                    text="",
+                    blocks=submission_json
                 )
 
                 # Delete the previous message once assigned
@@ -164,16 +217,29 @@ def interactivity():
             assignee_username = bot.users_info(
                 user=assignee_id
             )["user"]["name"]
-            submission_json = json.loads(form_json["state"])
-
+            
             @app.after_this_response
             def do_after():
+                submission_json = json.loads(form_json["state"])
                 # Open conversation with the user
                 im_id = bot.conversations_open(
                     users = assignee_id
                 )["channel"]["id"]
 
-                submission_json[2]["elements"].append(
+
+
+                submission_json[2]["elements"].clear()
+                submission_json[2]["elements"] = [
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "emoji": True,
+                            "text": ":bust_in_silhouette:Assign"
+                        },
+                        "style": "primary",
+                        "value": "assign_fax"
+                    },                    
                     {
                         "type": "button",
                         "text": {
@@ -184,14 +250,19 @@ def interactivity():
                         "style": "primary",
                         "value": "completed"
                     },
-                )
+                ]
 
                 # Move the message to the assigned users im
-
-                res = bot.chat_postMessage(
-                    channel=im_id,
-                    text="",
-                    blocks=submission_json + [{
+                if len(submission_json) == 5:
+                    submission_json[4]["elements"].clear()
+                    submission_json[4]["elements"] = [
+                            {
+                                "type": "mrkdwn",
+                                "text": f"👀 Assigned to: @{assignee_username}"
+                            },
+                    ]
+                else:
+                    submission_json += [{
                     "type": "divider"
                     },
                     {
@@ -203,6 +274,10 @@ def interactivity():
                             }
                         ]
                     }]
+                res = bot.chat_postMessage(
+                    channel=im_id,
+                    text="",
+                    blocks=submission_json
                 )
 
                 # Delete the previous message once assigned
@@ -234,7 +309,7 @@ def events_handler():
     def do_after():
         try:
             if payload["event"]["type"] == "message" and payload["event"]["user"] != "U016KJJQN0Y":
-                pprint(payload)
+                # pprint(payload)
                 # Get the file link and message ts
                 url = payload["event"]["files"][0]["url_private"]
                 ts = payload["event"]["ts"]

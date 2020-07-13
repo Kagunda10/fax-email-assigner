@@ -1,6 +1,7 @@
 import traceback
 from werkzeug.wsgi import ClosingIterator
 from slack import WebClient
+from pprint import pprint
 
 BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
 # BOT_TOKEN = "xoxb-535944217620-1223630838033-UAKWKPtfNzKjv1VGuYYMFOOr"
@@ -9,7 +10,7 @@ bot = WebClient(token=BOT_TOKEN)
 
 
 # Fax members
-fax_members = ["Amberley Wilson", "Candi Smith", "Stacey", "Jason"]
+fax_members = ["Amberley Wilson", "Stacey McClain", "Jason Walker"]
 # fax_members= ["jamescouldron", "caleb.njiiri"] 
 class AfterThisResponse:
     def __init__(self, app=None):
@@ -55,7 +56,7 @@ def get_user_id(username):
     members = bot.users_list()["members"]
     if members:
         for member in members:
-            if member["name"] == username:
+            if member["profile"]["real_name"] == username:
                 return member["id"]
 
 def get_member_block(name):    
@@ -70,6 +71,7 @@ def get_member_block(name):
             )
     else:
         for member in bot.users_list()["members"]:
+            
             if not member["is_bot"]:
                 member_id = member["id"]
                 member_block.append(

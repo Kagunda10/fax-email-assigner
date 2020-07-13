@@ -1,8 +1,6 @@
 '''
 TODO
 - Fetch the list of usernames from google sheets 
--  Add the assigned user and the fax number to a google sheet
-- Remove all hardcoded variables and implement a config file
 '''
 
 from slack import WebClient
@@ -24,7 +22,7 @@ archive_channel = "#" + config.get("SLACK", "archive")
 # BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
 # BOT_TOKEN = "xoxb-535944217620-1223630838033-UAKWKPtfNzKjv1VGuYYMFOOr"
 # USER_TOKEN = "xoxp-899759167666-914750686518-1234435004515-13364650811f9606492b0c2e4ab61231"
-# USER_TOKEN = "xoxp-535944217620-535998288195-1196342482263-19d91c224d99ce3ea3e3a7d0cd45098c"
+USER_TOKEN = "xoxp-535944217620-535998288195-1196342482263-19d91c224d99ce3ea3e3a7d0cd45098c"
 bot = WebClient(token=BOT_TOKEN)
 user = WebClient(token=USER_TOKEN)
 
@@ -39,6 +37,7 @@ def interactivity():
 
     # Parse the request payload
     form_json = json.loads(request.form["payload"])
+    pprint(form_json)
 
     # pprint(form_json)
     user_id = form_json["user"]["id"]
@@ -113,8 +112,8 @@ def interactivity():
                     ]
                 }
             )
-        elif selection == "completed":
-            pprint(form_json)
+        elif selection == "fax_completed":
+
             # Change the assignment footer to completed
             message_block = form_json["message"]["blocks"]
             completed_by = bot.users_info(
@@ -153,6 +152,46 @@ def interactivity():
                 text = "",
                 blocks=message_block
             )
+        elif selection == "email_completed":
+            # Change the assignment footer to completed
+            message_block = form_json["message"]["blocks"]
+            pprint(message_block)
+            completed_by = bot.users_info(
+                user=user_id
+            )["user"]["name"]
+
+            try:
+                if message_block[6]:
+                    message_block[6]["elements"].clear()
+                    message_block[6]["elements"] = [{"text": f":eyes: Completed by @{completed_by}", "type": "mrkdwn", "verbatim": False}]
+            except IndexError:
+                message_block +=  [{
+                    "type": "divider"
+                    },
+                    {
+                        "type": "context",
+                        "elements": [
+                            {
+                                "type": "mrkdwn",
+                                "text": f":eyes: Completed by @{completed_by}"
+                            }
+                        ]
+                    }]
+            
+            del message_block[3]
+
+            # Delete the original message in the DM
+            bot.chat_delete(
+                channel= form_json["channel"]["id"],
+                ts= form_json["message"]["ts"]
+            )
+            pprint(message_block)
+            #Move to the archive channel
+            bot.chat_postMessage(
+                channel= archive_channel,
+                text = "",
+                blocks=message_block
+            )
 
 
     # Handle the dialog submissions        
@@ -167,8 +206,6 @@ def interactivity():
                 user=assignee_id
             )["user"]["name"]
             
-
-            
             @app.after_this_response
             def do_after():
                 submission_json = json.loads(form_json["state"])
@@ -179,8 +216,8 @@ def interactivity():
 
                 # Move the message to the assigned users im
                 # Remove assign button
-                submission_json[2]["elements"].clear()
-                submission_json[2]["elements"] = [
+                submission_json[3]["elements"].clear()
+                submission_json[3]["elements"] = [
                     {
                         "type": "button",
                         "text": {
@@ -190,6 +227,15 @@ def interactivity():
                         },
                         "style": "primary",
                         "value": "assign_email"
+                    },
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "emoji": True,
+                            "text": ":email:Reply"
+                        },
+                        "value": "reply"
                     },                    
                     {
                         "type": "button",
@@ -204,9 +250,9 @@ def interactivity():
                 ]
 
                 # Move the message to the assigned users im
-                if len(submission_json) == 5:
-                    submission_json[4]["elements"].clear()
-                    submission_json[4]["elements"] = [
+                if len(submission_json) == 6:
+                    submission_json[5]["elements"].clear()
+                    submission_json[5]["elements"] = [
                             {
                                 "type": "mrkdwn",
                                 "text": f"👀 Assigned to: @{assignee_username}"
@@ -332,7 +378,7 @@ def events_handler():
     @app.after_this_response
     def do_after():
         try:
-            if payload["event"]["type"] == "message" and payload["event"]["user"] != "U016KJJQN0Y":
+            if payload["event"]["type"] == "message" and payload["event"]["user"] != "UFRVC8G5R":
                 # Get the file link and message ts
                 url = payload["event"]["files"][0]["url_private"]
                 ts = payload["event"]["ts"]
@@ -384,7 +430,7 @@ def events_handler():
                                         "text": ":white_check_mark:Completed"
                                     },
                                     "style": "primary",
-                                    "value": "completed"
+                                    "value": "fax_completed"
                                 }
                             ]
                         }
@@ -429,6 +475,13 @@ def post_unread():
                         ]
                     },
                     {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": msg["body"]
+                        }
+                    },
+                    {
                         "type": "actions",
                         "elements": [
                             {
@@ -449,15 +502,25 @@ def post_unread():
                                     "text": ":email:Reply"
                                 },
                                 "value": "reply"
+                            },
+                            {
+                                "type": "button",
+                                "text": {
+                                    "type": "plain_text",
+                                    "emoji": True,
+                                    "text": ":white_check_mark:Completed"
+                                },
+                                "style": "primary",
+                                "value": "email_completed"
                             }
                         ]
-                    }
+                    },
                 ]
             )
             break
 
 
 if __name__ == "__main__":
-    # post_unread()
+    post_unread()
     app.run(debug=True)
     

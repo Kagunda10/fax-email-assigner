@@ -73,12 +73,16 @@ def get_member_block(name):
         for member in bot.users_list()["members"]:
             
             if not member["is_bot"]:
-                member_id = member["id"]
-                member_block.append(
-                                {
-                                    "label": member["profile"]["display_name"],
-                                    "value": member_id
-                                },
-                )
+                if member["profile"]["display_name"] != "":
+                    if "bot" not in member["profile"]["display_name"].lower():
+                        member_id = member["id"]
+                        member_block.append(
+                                        {
+                                            "label": member["profile"]["display_name"],
+                                            "value": member_id
+                                        },
+                        )
     return member_block  
+
+# pprint(get_member_block("email"))
 

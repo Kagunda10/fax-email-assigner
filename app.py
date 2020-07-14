@@ -18,13 +18,10 @@ config.read("config.ini")
 
 BOT_TOKEN = config.get("SLACK", "BOT_TOKEN")
 USER_TOKEN = config.get("SLACK", "USER_TOKEN")
-archive_channel = "#" + config.get("SLACK", "archive")
-email_channel = "#test-emails"
-# email_channel = "#faxtoslack"
-# BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
-# BOT_TOKEN = "xoxb-535944217620-1223630838033-UAKWKPtfNzKjv1VGuYYMFOOr"
-# USER_TOKEN = "xoxp-899759167666-914750686518-1234435004515-13364650811f9606492b0c2e4ab61231"
-USER_TOKEN = "xoxp-535944217620-535998288195-1196342482263-19d91c224d99ce3ea3e3a7d0cd45098c"
+archive_channel = "#" + config.get("SLACK", "ARCHIVE")
+bot_id = config.get("SLACK", "BOT_ID")
+email_channel = config.get("SLACK", "EMAIL")
+
 bot = WebClient(token=BOT_TOKEN)
 user = WebClient(token=USER_TOKEN)
 
@@ -39,9 +36,7 @@ def interactivity():
 
     # Parse the request payload
     form_json = json.loads(request.form["payload"])
-    pprint(form_json)
 
-    # pprint(form_json)
     user_id = form_json["user"]["id"]
     
 
@@ -147,7 +142,6 @@ def interactivity():
                 channel= form_json["channel"]["id"],
                 ts= form_json["message"]["ts"]
             )
-            pprint(message_block)
             #Move to the archive channel
             bot.chat_postMessage(
                 channel= archive_channel,
@@ -162,9 +156,9 @@ def interactivity():
             )["user"]["name"]
 
             try:
-                if message_block[6]:
-                    message_block[6]["elements"].clear()
-                    message_block[6]["elements"] = [{"text": f":eyes: Completed by @{completed_by}", "type": "mrkdwn", "verbatim": False}]
+                if message_block[5]:
+                    message_block[5]["elements"].clear()
+                    message_block[5]["elements"] = [{"text": f":eyes: Completed by @{completed_by}", "type": "mrkdwn", "verbatim": False}]
             except IndexError:
                 message_block +=  [{
                     "type": "divider"
@@ -186,7 +180,6 @@ def interactivity():
                 channel= form_json["channel"]["id"],
                 ts= form_json["message"]["ts"]
             )
-            pprint(message_block)
             #Move to the archive channel
             bot.chat_postMessage(
                 channel= archive_channel,
@@ -246,7 +239,7 @@ def interactivity():
                             "text": ":white_check_mark:Completed"
                         },
                         "style": "primary",
-                        "value": "completed"
+                        "value": "email_completed"
                     },
                 ]
 
@@ -319,7 +312,7 @@ def interactivity():
                             "text": ":white_check_mark:Completed"
                         },
                         "style": "primary",
-                        "value": "completed"
+                        "value": "fax_completed"
                     },
                 ]
 
@@ -375,68 +368,70 @@ def interactivity():
 @app.route("/events", methods=["POST"])
 def events_handler():
     payload = request.json
+    print(payload["event"]["user"])
     
     @app.after_this_response
     def do_after():
         try:
-            if payload["event"]["type"] == "message" and payload["event"]["user"] != "UFRVC8G5R":
-                # Get the file link and message ts
-                url = payload["event"]["files"][0]["url_private"]
-                ts = payload["event"]["ts"]
-                channel = payload["event"]["channel"]
-                text = payload["event"]["text"]
+            if payload["event"]["type"] == "message":
+                if payload["event"]["user"] != bot_id:
+                    # Get the file link and message ts
+                    url = payload["event"]["files"][0]["url_private"]
+                    ts = payload["event"]["ts"]
+                    channel = payload["event"]["channel"]
+                    text = payload["event"]["text"]
 
-                # Delete the original message
-                user.chat_delete(
-                    channel= channel,
-                    ts=ts
-                )
+                    # Delete the original message
+                    user.chat_delete(
+                        channel= channel,
+                        ts=ts
+                    )
 
-                # Post the message with the fax and added blocks
-                bot.chat_postMessage(
-                    channel=channel,
-                    blocks = [
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": "*You have a new fax:fax:*"
-                            }
-                        },
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": f"*Details*: {text}\n\n *Fax:* <{url}|link>"
-                            }
-                        },
-                        {
-                            "type": "actions",
-                            "elements": [
-                                {
-                                    "type": "button",
-                                    "text": {
-                                        "type": "plain_text",
-                                        "emoji": True,
-                                        "text": ":bust_in_silhouette:Assign"
-                                    },
-                                    "style": "primary",
-                                    "value": "assign_fax"
-                                },                    
-                                {
-                                    "type": "button",
-                                    "text": {
-                                        "type": "plain_text",
-                                        "emoji": True,
-                                        "text": ":white_check_mark:Completed"
-                                    },
-                                    "style": "primary",
-                                    "value": "fax_completed"
+                    # Post the message with the fax and added blocks
+                    bot.chat_postMessage(
+                        channel=channel,
+                        blocks = [
+                            {
+                                "type": "section",
+                                "text": {
+                                    "type": "mrkdwn",
+                                    "text": "*You have a new fax:fax:*"
                                 }
-                            ]
-                        }
-                    ]
-                )
+                            },
+                            {
+                                "type": "section",
+                                "text": {
+                                    "type": "mrkdwn",
+                                    "text": f"*Details*: {text}\n\n *Fax:* <{url}|link>"
+                                }
+                            },
+                            {
+                                "type": "actions",
+                                "elements": [
+                                    {
+                                        "type": "button",
+                                        "text": {
+                                            "type": "plain_text",
+                                            "emoji": True,
+                                            "text": ":bust_in_silhouette:Assign"
+                                        },
+                                        "style": "primary",
+                                        "value": "assign_fax"
+                                    },                    
+                                    {
+                                        "type": "button",
+                                        "text": {
+                                            "type": "plain_text",
+                                            "emoji": True,
+                                            "text": ":white_check_mark:Completed"
+                                        },
+                                        "style": "primary",
+                                        "value": "fax_completed"
+                                    }
+                                ]
+                            }
+                        ]
+                    )
         except KeyError:
             print("Invalid event")
     return make_response("", 200)
@@ -522,6 +517,5 @@ def post_unread():
 
 
 if __name__ == "__main__":
-    post_unread()
     app.run(debug=True)
     

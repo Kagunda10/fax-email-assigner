@@ -6,14 +6,16 @@ import email.message
 from pprint import pprint
 import mailparser
 import html2markdown
+import configparser
 
+config = configparser.ConfigParser()
+config.read("config.ini")
 
 imap_server = "imap.gmail.com"
 smtp_server = "smtp.gmail.com"
-addr = "mail@caringride.com"
-pwd = "tuzsev-4hesku-sonwUd"
-# addr = "jamescouldron@gmail.com"
-# pwd = "95170305"
+addr = config.get("EMAIL", "ADDRESS")
+pwd = config.get("EMAIL", "PASSWORD")
+
 readonly_state = True
 
 def fetch_unread():

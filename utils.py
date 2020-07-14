@@ -2,16 +2,19 @@ import traceback
 from werkzeug.wsgi import ClosingIterator
 from slack import WebClient
 from pprint import pprint
+import configparser
 
-BOT_TOKEN = "xoxb-899759167666-1240407393364-L6Rox22GlanzoNEBZnYuEJo4"
-# BOT_TOKEN = "xoxb-535944217620-1223630838033-UAKWKPtfNzKjv1VGuYYMFOOr"
+################### -CONFIGURATION- ##########################
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+BOT_TOKEN = config.get("SLACK", "BOT_TOKEN")
 
 bot = WebClient(token=BOT_TOKEN)
 
-
 # Fax members
 fax_members = ["Amberley Wilson", "Stacey", "Jason", "Candi Smith"]
-# fax_members= ["James C", "caleb njiiri"] 
+
 class AfterThisResponse:
     def __init__(self, app=None):
         self.callbacks = []

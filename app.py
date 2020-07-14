@@ -20,7 +20,7 @@ BOT_TOKEN = config.get("SLACK", "BOT_TOKEN")
 USER_TOKEN = config.get("SLACK", "USER_TOKEN")
 archive_channel = "#" + config.get("SLACK", "ARCHIVE")
 bot_id = config.get("SLACK", "BOT_ID")
-email_channel = config.get("SLACK", "EMAIL")
+email_channel = "#" + config.get("SLACK", "EMAIL")
 
 bot = WebClient(token=BOT_TOKEN)
 user = WebClient(token=USER_TOKEN)

@@ -368,7 +368,6 @@ def interactivity():
 @app.route("/events", methods=["POST"])
 def events_handler():
     payload = request.json
-    print(payload["event"]["user"])
     
     @app.after_this_response
     def do_after():

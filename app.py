@@ -60,7 +60,7 @@ def interactivity():
                             "label": "Member's Name",
                             "type": "select",
                             "name": "email_assignee",
-                            "placeholder": "Select a user",
+                            "placeholder": "Select a Member",
                             "options": email_members_block
                         }
                     ]
@@ -77,10 +77,10 @@ def interactivity():
                     "state": json.dumps(form_json["message"]["blocks"]),
                     "elements": [
                         {
-                            "label": "Username",
+                            "label": "Member's Name",
                             "type": "select",
                             "name": "fax_assignee",
-                            "placeholder": "Select a user",
+                            "placeholder": "Select a Member",
                             "options": fax_members_block
                         }
                     ]

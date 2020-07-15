@@ -64,27 +64,30 @@ def get_user_id(username):
 
 def get_member_block(name):    
     member_block = []
-    if name == "fax":
-        for member in fax_members:
-            member_block.append(
-                {
-                    "label": member,
-                    "value": get_user_id(member)
-                },
-            )
-    else:
-        for member in bot.users_list()["members"]:
-            
-            if not member["is_bot"]:
-                if member["profile"]["display_name"] != "":
-                    if "bot" not in member["profile"]["display_name"].lower():
-                        member_id = member["id"]
-                        member_block.append(
-                                        {
-                                            "label": member["profile"]["display_name"],
-                                            "value": member_id
-                                        },
-                        )
+    try:
+        if name == "fax":
+            for member in fax_members:
+                member_block.append(
+                    {
+                        "label": member,
+                        "value": get_user_id(member)
+                    },
+                )
+        else:
+            for member in bot.users_list()["members"]:
+                
+                if not member["is_bot"]:
+                    if member["profile"]["display_name"] != "":
+                        if "bot" not in member["profile"]["display_name"].lower():
+                            member_id = member["id"]
+                            member_block.append(
+                                            {
+                                                "label": member["profile"]["display_name"],
+                                                "value": member_id
+                                            },
+                            )
+    except Exception as e:
+        print(e)
     return member_block  
 
 # pprint(get_member_block("email"))

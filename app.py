@@ -71,7 +71,7 @@ def interactivity():
             open_dialog = bot.dialog_open(
                 trigger_id=trigger_id,
                 dialog={
-                    "title": "Select the member",
+                    "title": "Choose Member",
                     "submit_label": "Submit",
                     "callback_id": form_json["message"]["ts"],
                     "state": json.dumps(form_json["message"]["blocks"]),

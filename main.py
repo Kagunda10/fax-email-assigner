@@ -20,7 +20,7 @@ imap_server = "imap.gmail.com"
 smtp_server = "smtp.gmail.com"
 addr = config.get("EMAIL", "ADDRESS")
 pwd = config.get("EMAIL", "PASSWORD")
-readonly_state = True
+readonly_state = False
 
 def fetch_unread():
 

@@ -51,7 +51,7 @@ def interactivity():
             open_dialog = bot.dialog_open(
                 trigger_id=trigger_id,
                 dialog={
-                    "title": "Select the member",
+                    "title": "Choose Member",
                     "submit_label": "Submit",
                     "callback_id": form_json["message"]["ts"],
                     "state": json.dumps(form_json["message"]["blocks"]),
@@ -60,7 +60,7 @@ def interactivity():
                             "label": "Member's Name",
                             "type": "select",
                             "name": "email_assignee",
-                            "placeholder": "Select a Member",
+                            "placeholder": "Choose Member",
                             "options": email_members_block
                         }
                     ]
@@ -80,7 +80,7 @@ def interactivity():
                             "label": "Member's Name",
                             "type": "select",
                             "name": "fax_assignee",
-                            "placeholder": "Select a Member",
+                            "placeholder": "Choose Member",
                             "options": fax_members_block
                         }
                     ]

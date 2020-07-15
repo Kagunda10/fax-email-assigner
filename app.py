@@ -4,7 +4,7 @@ TODO
 '''
 
 from slack import WebClient
-from main import fetch_unread, reply
+from main import  reply
 from flask import Flask, request, jsonify, make_response
 import configparser
 from pprint import pprint
@@ -436,84 +436,6 @@ def events_handler():
     return make_response("", 200)
 
     # return payload["challenge"]
-
-def post_unread():
-    unread_messages = fetch_unread()
-    if unread_messages:
-        for msg in unread_messages:
-            res = bot.chat_postMessage(
-                channel = email_channel,
-                text = "",
-                blocks = [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*You have a new email:inbox_tray:*"
-                        }
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": f"*From:*\n{msg['from']}"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": f"*To:*\n{msg['to']}"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": f"*Subject:*\n{msg['Subject']}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": msg["body"]
-                        }
-                    },
-                    {
-                        "type": "actions",
-                        "elements": [
-                            {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "emoji": True,
-                                    "text": ":bust_in_silhouette:Assign"
-                                },
-                                "style": "primary",
-                                "value": "assign_email"
-                            },
-                            {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "emoji": True,
-                                    "text": ":email:Reply"
-                                },
-                                "value": "reply"
-                            },
-                            {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "emoji": True,
-                                    "text": ":white_check_mark:Complete"
-                                },
-                                "style": "primary",
-                                "value": "email_completed"
-                            }
-                        ]
-                    },
-                ]
-            )
-            break
-
 
 if __name__ == "__main__":
     app.run(debug=True)

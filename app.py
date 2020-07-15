@@ -25,8 +25,8 @@ email_channel = "#" + config.get("SLACK", "EMAIL")
 bot = WebClient(token=BOT_TOKEN)
 user = WebClient(token=USER_TOKEN)
 
-fax_members_block = get_member_block("fax")
-email_members_block = get_member_block("email")
+fax_members_block = []
+email_members_block = []
 
 app = Flask(__name__)
 AfterThisResponse(app)

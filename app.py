@@ -137,11 +137,17 @@ def interactivity():
                 
                 del message_block[2]
 
-                # Delete the original message in the DM
-                bot.chat_delete(
-                    channel= form_json["channel"]["id"],
-                    ts= form_json["message"]["ts"]
-                )
+                try:
+                    # Delete the original message in the DM
+                    bot.chat_delete(
+                        channel= form_json["channel"]["id"],
+                        ts= form_json["message"]["ts"]
+                    )
+                except Exception as e:
+                    user.chat_delete(
+                        channel= form_json["channel"]["id"],
+                        ts= form_json["message"]["ts"]
+                    )   
                 #Move to the archive channel
                 bot.chat_postMessage(
                     channel= archive_channel,
@@ -175,11 +181,17 @@ def interactivity():
                 
                 del message_block[3]
 
-                # Delete the original message in the DM
-                bot.chat_delete(
-                    channel= form_json["channel"]["id"],
-                    ts= form_json["message"]["ts"]
-                )
+                try:
+                    # Delete the original message in the DM
+                    bot.chat_delete(
+                        channel= form_json["channel"]["id"],
+                        ts= form_json["message"]["ts"]
+                    )
+                except Exception as e:
+                    user.chat_delete(
+                        channel= form_json["channel"]["id"],
+                        ts= form_json["message"]["ts"]
+                    )         
                 #Move to the archive channel
                 bot.chat_postMessage(
                     channel= archive_channel,
@@ -272,7 +284,7 @@ def interactivity():
                     )
 
                     # Delete the previous message once assigned
-                    bot.chat_delete(
+                    user.chat_delete(
                         channel=form_json["channel"]["id"],
                         ts = form_json["callback_id"]
                     )
@@ -345,7 +357,7 @@ def interactivity():
                     )
 
                     # Delete the previous message once assigned
-                    bot.chat_delete(
+                    user.chat_delete(
                         channel=form_json["channel"]["id"],
                         ts = form_json["callback_id"]
                     )

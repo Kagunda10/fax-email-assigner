@@ -503,7 +503,7 @@ def post_unread():
                                 "text": {
                                     "type": "plain_text",
                                     "emoji": True,
-                                    "text": ":white_check_mark:Completed"
+                                    "text": ":white_check_mark:Complete"
                                 },
                                 "style": "primary",
                                 "value": "email_completed"

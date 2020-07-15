@@ -19,7 +19,7 @@ imap_server = "imap.gmail.com"
 smtp_server = "smtp.gmail.com"
 addr = config.get("EMAIL", "ADDRESS")
 pwd = config.get("EMAIL", "PASSWORD")
-
+bot = WebClient(token=BOT_TOKEN)
 readonly_state = False
 
 def fetch_unread():

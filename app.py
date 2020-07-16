@@ -387,21 +387,15 @@ def events_handler():
         def do_after():
             try:
                 if payload["event"]["type"] == "message":
-                    if payload["event"]["user"] != bot_id:
+                    if payload["event"]["user"] != " ":
                         # Get the file link and message ts
                         url = payload["event"]["files"][0]["url_private"]
                         ts = payload["event"]["ts"]
                         channel = payload["event"]["channel"]
                         text = payload["event"]["text"]
 
-                        # Delete the original message
-                        user.chat_delete(
-                            channel= channel,
-                            ts=ts
-                        )
-
                         # Post the message with the fax and added blocks
-                        bot.chat_postMessage(
+                        res = bot.chat_postMessage(
                             channel=channel,
                             blocks = [
                                 {
@@ -444,6 +438,12 @@ def events_handler():
                                     ]
                                 }
                             ]
+                        )
+
+                        # Delete the original message
+                        user.chat_delete(
+                            channel= channel,
+                            ts=ts
                         )
             except KeyError:
                 print("Invalid event")

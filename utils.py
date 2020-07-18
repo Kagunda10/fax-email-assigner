@@ -13,8 +13,8 @@ BOT_TOKEN = config.get("SLACK", "BOT_TOKEN")
 bot = WebClient(token=BOT_TOKEN)
 
 # Fax members
-fax_members = ["Amberley Wilson", "Stacey", "Jason", "Candi Smith"]
-
+# fax_members = ["Amberley Wilson", "Stacey", "Jason", "Candi Smith"]
+fax_members = ["james couldron"]
 class AfterThisResponse:
     def __init__(self, app=None):
         self.callbacks = []

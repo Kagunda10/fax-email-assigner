@@ -15,6 +15,8 @@ bot = WebClient(token=BOT_TOKEN)
 # Fax members
 # fax_members = ["Amberley Wilson", "Stacey", "Jason", "Candi Smith"]
 fax_members = ["james couldron"]
+
+
 class AfterThisResponse:
     def __init__(self, app=None):
         self.callbacks = []
@@ -42,6 +44,7 @@ class AfterThisResponse:
         finally:
             self.callbacks = []
 
+
 class AfterThisResponseMiddleware:
     def __init__(self, application, after_this_response_ext):
         self.application = application
@@ -50,10 +53,12 @@ class AfterThisResponseMiddleware:
     def __call__(self, environ, start_response):
         iterator = self.application(environ, start_response)
         try:
-            return ClosingIterator(iterator, [self.after_this_response_ext.flush])
+            return ClosingIterator(
+                iterator, [self.after_this_response_ext.flush])
         except Exception:
             traceback.print_exc()
             return iterator
+
 
 def get_user_id(username):
     members = bot.users_list()["members"]
@@ -62,7 +67,8 @@ def get_user_id(username):
             if member["profile"]["display_name"] == username:
                 return member["id"]
 
-def get_member_block(name):    
+
+def get_member_block(name):
     member_block = []
     try:
         if name == "fax":
@@ -75,20 +81,20 @@ def get_member_block(name):
                 )
         else:
             for member in bot.users_list()["members"]:
-                
+
                 if not member["is_bot"]:
                     if member["profile"]["display_name"] != "":
-                        if "bot" not in member["profile"]["display_name"].lower():
+                        if "bot" not in member["profile"]["display_name"].lower(
+                        ):
                             member_id = member["id"]
                             member_block.append(
-                                            {
-                                                "label": member["profile"]["display_name"],
-                                                "value": member_id
-                                            },
+                                {
+                                    "label": member["profile"]["display_name"],
+                                    "value": member_id
+                                },
                             )
     except Exception as e:
         print(e)
-    return member_block  
+    return member_block
 
 # pprint(get_member_block("email"))
-

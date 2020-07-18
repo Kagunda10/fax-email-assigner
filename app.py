@@ -21,6 +21,7 @@ USER_TOKEN = config.get("SLACK", "USER_TOKEN")
 archive_channel = "#" + config.get("SLACK", "ARCHIVE")
 bot_id = config.get("SLACK", "BOT_ID")
 email_channel = "#" + config.get("SLACK", "EMAIL")
+fax_channel = "#" + config.get("SLACK", "FAX")
 
 bot = WebClient(token=BOT_TOKEN)
 user = WebClient(token=USER_TOKEN)
@@ -382,76 +383,69 @@ def interactivity():
 @app.route("/events", methods=["POST"])
 def events_handler():
     payload = request.json
-    try:
-        @app.after_this_response
-        def do_after():
-            try:
-                if payload["event"]["type"] == "message":
-                    if payload["event"]["user"] != " ":
-                        # Get the file link and message ts
-                        url = payload["event"]["files"][0]["url_private"]
-                        ts = payload["event"]["ts"]
-                        channel = payload["event"]["channel"]
-                        text = payload["event"]["text"]
+    # pprint(payload)
+    # try:
+    #     @app.after_this_response
+    #     def do_after():
 
-                        # Post the message with the fax and added blocks
-                        res = bot.chat_postMessage(
-                            channel=channel,
-                            blocks = [
-                                {
-                                    "type": "section",
-                                    "text": {
-                                        "type": "mrkdwn",
-                                        "text": "*You have a new fax:fax:*"
-                                    }
-                                },
-                                {
-                                    "type": "section",
-                                    "text": {
-                                        "type": "mrkdwn",
-                                        "text": f"*Details*: {text}\n\n *Fax:* <{url}|link>"
-                                    }
-                                },
-                                {
-                                    "type": "actions",
-                                    "elements": [
-                                        {
-                                            "type": "button",
-                                            "text": {
-                                                "type": "plain_text",
-                                                "emoji": True,
-                                                "text": ":bust_in_silhouette:Assign"
-                                            },
-                                            "style": "primary",
-                                            "value": "assign_fax"
-                                        },                    
-                                        {
-                                            "type": "button",
-                                            "text": {
-                                                "type": "plain_text",
-                                                "emoji": True,
-                                                "text": ":white_check_mark:Complete"
-                                            },
-                                            "style": "primary",
-                                            "value": "fax_completed"
-                                        }
-                                    ]
-                                }
-                            ]
-                        )
+    #         if payload["event"]["type"] == "message":
+    #             try:
+    #                 if payload["event"]["user"] != bot_id:
+    #                     url = payload["event"]["files"][0]["url_private"]
+    #                     channel = fax_channel
 
-                        # Delete the original message
-                        user.chat_delete(
-                            channel= channel,
-                            ts=ts
-                        )
-            except KeyError:
-                print("Invalid event")
-    except Exception as e:
-        print(e)
-    return make_response("", 200)
+    #                     # Post the message with the fax and added blocks
+    #                     res = bot.chat_postMessage(
+    #                         channel=channel,
+    #                         blocks = [
+    #                             {
+    #                                 "type": "section",
+    #                                 "text": {
+    #                                     "type": "mrkdwn",
+    #                                     "text": "*You have a new fax:fax:*"
+    #                                 }
+    #                             },
+    #                             {
+    #                                 "type": "section",
+    #                                 "text": {
+    #                                     "type": "mrkdwn",
+    #                                     "text": f"*Fax:* <{url}|link>"
+    #                                 }
+    #                             },
+    #                             {
+    #                                 "type": "actions",
+    #                                 "elements": [
+    #                                     {
+    #                                         "type": "button",
+    #                                         "text": {
+    #                                             "type": "plain_text",
+    #                                             "emoji": True,
+    #                                             "text": ":bust_in_silhouette:Assign"
+    #                                         },
+    #                                         "style": "primary",
+    #                                         "value": "assign_fax"
+    #                                     },                    
+    #                                     {
+    #                                         "type": "button",
+    #                                         "text": {
+    #                                             "type": "plain_text",
+    #                                             "emoji": True,
+    #                                             "text": ":white_check_mark:Complete"
+    #                                         },
+    #                                         "style": "primary",
+    #                                         "value": "fax_completed"
+    #                                     }
+    #                                 ]
+    #                             }
+    #                         ]
+    #                     )
+    #             except KeyError:
+    #                 print("Invalid event")
+    # except Exception as e:
+    #     print(e)
+    # return make_response("", 200)
 
-    # return payload["challenge"]
+    return payload["challenge"]
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -9,7 +9,11 @@ import html2markdown
 import configparser
 import requests
 import sched
+from imap_tools import MailBox, AND 
+import os
 import json
+from slack import WebClient
+from slack.errors import SlackApiError
 
 
 config = configparser.ConfigParser()
@@ -21,6 +25,37 @@ smtp_server = "smtp.gmail.com"
 addr = config.get("EMAIL", "ADDRESS")
 pwd = config.get("EMAIL", "PASSWORD")
 readonly_state = False
+
+
+def fetch_attachment(uid):
+    files = []
+    client = WebClient(token="xoxp-535944217620-535998288195-1006436390965-fb8f9cd8f02288c6333b3ca17893bd50")
+    # get all attachments for each email from INBOX folder
+    with MailBox(imap_server).login(addr, pwd) as mailbox:
+        for raw_msg in mailbox.fetch(AND(uid=[str(uid)])):
+            for att in raw_msg.attachments:
+                with open('{}'.format(att.filename), 'wb') as f:
+                    f.write(att.payload)
+                # Upload file to slack
+                try:
+                    response = client.files_upload(
+                        channel="#email-inbox",
+                        file=f"{att.filename}"
+                    )
+
+                    #Capture the url
+                    files.append(response["file"]["url_private"])
+
+
+                    #delete the message
+                    if os.path.isfile(f"{att.filename}"):
+                        os.remove(f"{att.filename}")
+                    
+                except SlackApiError as e:
+                    print(e.response["error"])
+
+    return files
+
 
 def fetch_unread():
 
@@ -49,6 +84,7 @@ def fetch_unread():
             msg["Subject"] = message.get_subject()
             msg["from"] = message.get_addresses('from')[0][1]
             msg["to"] = message.get_addresses('to')[0][1]
+            msg["attachments"] = fetch_attachment(uid)
             # mail = mailparser.parse_from_bytes(raw_message[uid][b'BODY[]'])
             # print(mail.text_plain)
 
@@ -100,6 +136,11 @@ def post_unread():
     if unread_messages:
         for msg in unread_messages:
             
+            if msg["attachments"]:
+                attachments_ = ' '.join([f"<{ach}|link>" for ach in msg["attachments"]])
+            else:
+                attachments_ = "None"
+
             slack_data = {
               'text':"New Email",
               'blocks': [
@@ -124,6 +165,10 @@ def post_unread():
                           {
                               "type": "mrkdwn",
                               "text": f"*Subject:*\n{msg['Subject']}"
+                          },
+                          {
+                              "type": "mrkdwn",
+                              "text": f"*Subject:*\n{attachments_}"
                           }
                       ]
                   },
@@ -170,24 +215,14 @@ def post_unread():
                   },
               ]
             }
-            response = requests.post(
-              webhook, data=json.dumps(slack_data),
-              headers={'Content-Type': 'application/json'}
-            )
-            if response.status_code != 200:
-                raise ValueError(
-                    'Request to slack returned an error %s, the response is:\n%s'
-                    % (response.status_code, response.text)
+
+            try:
+                response = requests.post(
+                webhook, data=json.dumps(slack_data),
+                headers={'Content-Type': 'application/json'}
                 )
-
-# while True:
-#   post_unread()
-#   time.sleep(300)
-# reply(addr, "caleb.njiiri@gmail.com","tyui", "Netflix is a joke" )
-# pprint(fetch_unread())
-
-
-
+            except SlackApiError as e:
+                print(e)
 
 
   

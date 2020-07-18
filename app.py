@@ -384,68 +384,68 @@ def interactivity():
 def events_handler():
     payload = request.json
     # pprint(payload)
-    # try:
-    #     @app.after_this_response
-    #     def do_after():
+    try:
+        @app.after_this_response
+        def do_after():
 
-    #         if payload["event"]["type"] == "message":
-    #             try:
-    #                 if payload["event"]["user"] != bot_id:
-    #                     url = payload["event"]["files"][0]["url_private"]
-    #                     channel = fax_channel
+            if payload["event"]["type"] == "message":
+                try:
+                    if payload["event"]["user"] != bot_id:
+                        url = payload["event"]["files"][0]["url_private"]
+                        channel = fax_channel
 
-    #                     # Post the message with the fax and added blocks
-    #                     res = bot.chat_postMessage(
-    #                         channel=channel,
-    #                         blocks = [
-    #                             {
-    #                                 "type": "section",
-    #                                 "text": {
-    #                                     "type": "mrkdwn",
-    #                                     "text": "*You have a new fax:fax:*"
-    #                                 }
-    #                             },
-    #                             {
-    #                                 "type": "section",
-    #                                 "text": {
-    #                                     "type": "mrkdwn",
-    #                                     "text": f"*Fax:* <{url}|link>"
-    #                                 }
-    #                             },
-    #                             {
-    #                                 "type": "actions",
-    #                                 "elements": [
-    #                                     {
-    #                                         "type": "button",
-    #                                         "text": {
-    #                                             "type": "plain_text",
-    #                                             "emoji": True,
-    #                                             "text": ":bust_in_silhouette:Assign"
-    #                                         },
-    #                                         "style": "primary",
-    #                                         "value": "assign_fax"
-    #                                     },                    
-    #                                     {
-    #                                         "type": "button",
-    #                                         "text": {
-    #                                             "type": "plain_text",
-    #                                             "emoji": True,
-    #                                             "text": ":white_check_mark:Complete"
-    #                                         },
-    #                                         "style": "primary",
-    #                                         "value": "fax_completed"
-    #                                     }
-    #                                 ]
-    #                             }
-    #                         ]
-    #                     )
-    #             except KeyError:
-    #                 print("Invalid event")
-    # except Exception as e:
-    #     print(e)
-    # return make_response("", 200)
+                        # Post the message with the fax and added blocks
+                        res = bot.chat_postMessage(
+                            channel=channel,
+                            blocks = [
+                                {
+                                    "type": "section",
+                                    "text": {
+                                        "type": "mrkdwn",
+                                        "text": "*You have a new fax:fax:*"
+                                    }
+                                },
+                                {
+                                    "type": "section",
+                                    "text": {
+                                        "type": "mrkdwn",
+                                        "text": f"*Fax:* <{url}|link>"
+                                    }
+                                },
+                                {
+                                    "type": "actions",
+                                    "elements": [
+                                        {
+                                            "type": "button",
+                                            "text": {
+                                                "type": "plain_text",
+                                                "emoji": True,
+                                                "text": ":bust_in_silhouette:Assign"
+                                            },
+                                            "style": "primary",
+                                            "value": "assign_fax"
+                                        },                    
+                                        {
+                                            "type": "button",
+                                            "text": {
+                                                "type": "plain_text",
+                                                "emoji": True,
+                                                "text": ":white_check_mark:Complete"
+                                            },
+                                            "style": "primary",
+                                            "value": "fax_completed"
+                                        }
+                                    ]
+                                }
+                            ]
+                        )
+                except KeyError:
+                    print("Invalid event")
+    except Exception as e:
+        print(e)
+    return make_response("", 200)
 
-    return payload["challenge"]
+    # return payload["challenge"]
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -78,7 +78,7 @@ def get_member_block(name):
                 member_block.append(
                     {
                         "label": member,
-                        "value": get_user_id(member)
+                        "value": get_user_id(member, bot)
                     },
                 )
         else:

@@ -61,7 +61,7 @@ class AfterThisResponseMiddleware:
             return iterator
 
 
-def get_user_id(username):
+def get_user_id(username, bot):
     members = bot.users_list()["members"]
     if members:
         for member in members:

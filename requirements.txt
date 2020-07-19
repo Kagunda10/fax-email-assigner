@@ -3,6 +3,7 @@ aioimaplib==0.7.18
 APScheduler==3.6.3
 async-timeout==3.0.1
 attrs==19.3.0
+autopep8==1.5.3
 beautifulsoup4==4.9.1
 cachetools==4.1.1
 certifi==2020.6.20
@@ -13,12 +14,14 @@ DateTime==4.3
 email-listener==1.2
 Flask==1.1.2
 Flask-APScheduler==1.11.0
+functorflow==2.2.5
 google-api-core==1.21.0
 google-api-python-client==1.9.3
 google-auth==1.19.0
 google-auth-httplib2==0.0.4
 google-auth-oauthlib==0.4.1
 googleapis-common-protos==1.52.0
+gspread==3.6.0
 gunicorn==20.0.4
 html2markdown==0.1.7
 html2text==2020.1.16
@@ -43,10 +46,12 @@ protobuf==3.12.2
 py==1.9.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+pycodestyle==2.6.0
 pyee==7.0.2
 pyparsing==2.4.7
 pytest==5.4.3
 python-dateutil==2.8.1
+python-dotenv==0.14.0
 pytz==2020.1
 pyzmail36==1.0.4
 requests==2.24.0
@@ -58,6 +63,8 @@ slack-webhook==1.0.3
 slackclient==2.7.2
 slackeventsapi==2.2.0
 soupsieve==2.0.1
+tomd==0.1.3
+toml==0.10.1
 typing-extensions==3.7.4.2
 tzlocal==2.1
 uritemplate==3.0.1

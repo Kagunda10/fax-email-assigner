@@ -445,7 +445,7 @@ def events_handler():
     # return payload["challenge"]
 
 
-@app.route("/cron/post_unread", methods["POST"])
+@app.route("/cron/post_unread", methods=["POST"])
 def post_unread_email():
     post_unread()
 

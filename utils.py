@@ -3,14 +3,15 @@ from werkzeug.wsgi import ClosingIterator
 from slack import WebClient
 from pprint import pprint
 import configparser
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 ################### -CONFIGURATION- ##########################
 config = configparser.ConfigParser()
 config.read("config.ini")
 
 BOT_TOKEN = config.get("SLACK", "BOT_TOKEN")
-
-bot = WebClient(token=BOT_TOKEN)
+FAX_MEMBERS_SHEET = config.get("SPREADSHEET", "URL")
 
 # Fax members
 # fax_members = ["Amberley Wilson", "Stacey", "Jason", "Candi Smith"]
@@ -69,10 +70,11 @@ def get_user_id(username):
 
 
 def get_member_block(name):
+    bot = WebClient(token=BOT_TOKEN)
     member_block = []
     try:
         if name == "fax":
-            for member in fax_members:
+            for member in fetch_fax_members():
                 member_block.append(
                     {
                         "label": member,
@@ -97,4 +99,17 @@ def get_member_block(name):
         print(e)
     return member_block
 
-# pprint(get_member_block("email"))
+
+def fetch_fax_members():
+    # use creds to create a client to interact with the Google Drive API
+    scope = ['https://spreadsheets.google.com/feeds']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('key.json', scope)
+    client = gspread.authorize(creds)
+
+    sheet = client.open_by_url(FAX_MEMBERS_SHEET).sheet1
+
+    # Get all display names
+    names_list = sheet.col_values(1)[1:]
+
+    return names_list
+

@@ -1,5 +1,5 @@
 from slack import WebClient
-from main import reply
+from main import reply, post_unread
 from flask import Flask, request, jsonify, make_response
 import configparser
 from pprint import pprint
@@ -17,6 +17,7 @@ archive_channel = "#" + config.get("SLACK", "ARCHIVE")
 bot_id = config.get("SLACK", "BOT_ID")
 email_channel = "#" + config.get("SLACK", "EMAIL")
 fax_channel = "#" + config.get("SLACK", "FAX")
+
 
 bot = WebClient(token=BOT_TOKEN)
 user = WebClient(token=USER_TOKEN)
@@ -443,6 +444,12 @@ def events_handler():
 
     # return payload["challenge"]
 
+
+@app.route("/cron/post_unread", methods["POST"])
+def post_unread_email():
+    post_unread()
+
+    return "OK", 200
 
 if __name__ == "__main__":
     app.run(debug=True)

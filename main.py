@@ -11,10 +11,12 @@ import requests
 import sched
 from imap_tools import MailBox, AND
 import os
+import re
 import json
 from slack import WebClient
 from slack.errors import SlackApiError
-
+from tomd import Tomd
+from bs4 import BeautifulSoup
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -56,6 +58,12 @@ def fetch_attachment(uid):
 
     return files
 
+def remove_table(html):
+    soup = BeautifulSoup(html, "html.parser")
+    for table in soup("table"):
+        table.decompose()
+    return str(soup)
+
 
 def fetch_unread():
 
@@ -86,8 +94,6 @@ def fetch_unread():
                         msg["from"] = message.get_addresses('from')[0][1]
                         msg["to"] = message.get_addresses('to')[0][1]
                         msg["attachments"] = fetch_attachment(uid)
-                        # mail = mailparser.parse_from_bytes(raw_message[uid][b'BODY[]'])
-                        # print(mail.text_plain)
 
                         if message.text_part is not None:
                             body = message.text_part.get_payload().decode(message.text_part.charset)
@@ -95,16 +101,13 @@ def fetch_unread():
 
                         else:
                             raw_body = message.html_part.get_payload().decode(message.html_part.charset)
-                            parsed_body = html2markdown.convert(raw_body)
+                            parsed_body = html2markdown.convert(remove_table(raw_body))
+                            print(parsed_body)
                             msg["body"] = parsed_body
                         unseen_msgs.append(msg)
-                        # pprint(msg)
-                        # Logout
 
             except Exception as e:
                 print(e)
-            # finally:
-                # imapobj.logout()
             imapobj.close_folder()
     imapobj.logout()
 
